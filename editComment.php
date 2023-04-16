@@ -17,6 +17,16 @@ function productName($id ,$db){
     return $info['product_name'];
 }
 
+function disemvowel($string) {
+    $vowels = array('a', 'e', 'i', 'o', 'u');
+    $result = '';
+    for ($i = 0; $i < strlen($string); $i++) {
+      if (!in_array(strtolower($string[$i]), $vowels)) {
+        $result .= $string[$i];
+      }
+    }
+    return $result;
+  }
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -24,7 +34,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     if (isset($_POST['update-btn'])) {
         $commentView = $_POST['view'];
-         
+         // Check if disemvowel checkbox is checked
+         $disemvowel = isset($_POST['disemvowel']) && $_POST['disemvowel'] == 'yes';
+
+        if($disemvowel){
+            $bq = "SELECT comment FROM comments WHERE comment_id = :commentID";
+            $st = $db->prepare($bq);
+                $st->bindValue(':commentID', $commentID, PDO::PARAM_INT);
+                $st->execute();
+                $comment = $st->fetch();
+
+            $disemvowelledComment = disemvowel($comment['comment']);
+            
+            
+            $query = "UPDATE comments SET comment = :disemvowelledComment, comment_view = :commentView, comment_disemvowel = :disemvowel WHERE comment_id = :commentID";
+                $statement = $db->prepare($query);
+                $statement->bindValue(':disemvowelledComment', $disemvowelledComment); 
+                $statement->bindValue(':commentView', $commentView);    
+                $statement->bindValue(':disemvowel', 'yes');    
+                $statement->bindValue(':commentID', $commentID, PDO::PARAM_INT);
+                $statement->execute();
+
+                header('Location: editComment.php');
+        
+        } else{
             
             $query = "UPDATE comments SET comment_view = :commentView WHERE comment_id = :commentID";
                 $statement = $db->prepare($query);
@@ -33,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $statement->execute();
 
                 header('Location: editComment.php');
-        
+        }
         
 
     } else if(isset($_POST['delete-btn'])){
