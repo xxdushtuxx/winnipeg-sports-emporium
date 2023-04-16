@@ -1,0 +1,19 @@
+body {
+    text-align: center;
+}
+
+ul {
+    display: flex;
+    list-style: none;
+    justify-content: space-between;
+    border: 1px solid black;
+}
+
+.header {
+    border: 2px solid black;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
