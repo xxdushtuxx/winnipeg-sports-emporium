@@ -12,7 +12,7 @@
 <body>
     <a href="addProduct.php">Add a new product</a>
     <br>
-    <a href="categories.php">Add a new category</a>
+    <a href="addCategory.php">Add a new category</a>
     <br>
     <a href="editProduct.php">Edit a product</a>
     <br>
