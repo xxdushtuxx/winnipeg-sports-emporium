@@ -32,7 +32,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         if (isset($_POST['update-btn'])) {
         // Update product details in the database
+            //$changedPassword = $_POST['user-password'];
             
+            if(isset($_POST['change-password'])){
+                $changedPassword = $_POST['user-password'];
+                $hashedPassword = password_hash($changedPassword, PASSWORD_DEFAULT);
+
+                $query = "UPDATE users SET user_name = :username, user_email = :useremail, user_firstname = :userfirstname, user_lastname = :userlastname, user_password = :userpassword, user_role = :userrole WHERE user_id = :userid";
+                $statement = $db->prepare($query);
+                $statement->bindValue(':username', $username);        
+                $statement->bindValue(':useremail', $email);
+                $statement->bindValue(':userfirstname', $firstName);
+                $statement->bindValue(':userlastname', $lastName);
+                $statement->bindValue(':userpassword', $hashedPassword);
+                $statement->bindValue(':userrole', $userRole);
+                $statement->bindValue(':userid', $user_id, PDO::PARAM_INT);
+                $statement->execute();
+                //echo "done updating.";
+
+                
+                // Redirect to index page
+                header('Location: editUser.php');
+                exit;
+            } else{
 
             $query = "UPDATE users SET user_name = :username, user_email = :useremail, user_firstname = :userfirstname, user_lastname = :userlastname, user_role = :userrole WHERE user_id = :userid";
             $statement = $db->prepare($query);
@@ -59,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             //header('Location: index.php');
             //exit;   
             header('Location: editUser.php');
-        
+        }
     }
 }
 
@@ -131,7 +153,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <input type="text" name="user-role" value="<?= $row['user_role'] ?>">
 
 
-
+        <label for="user-password">Change Password</label>
+        <input type="password" name="user-password" id="user-password" value="">
+        <input type="checkbox" name="change-password"> <!-- checkbox needs to be selected to change the password -->
+        <label for="change-password"><i>checkbox needs to be selected to change the password</i></label>
         <p>
             <input type="submit" name="update-btn" value="Update">
             <input type="submit" name="delete-btn" value="Delete" onclick="return confirm('Are you sure you wish to delete this user?')">
