@@ -1,5 +1,36 @@
 <?php
 
+require('connect.php');
+session_start();
+$errorFlag = false;
+if (isset($_POST['submit'])) {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+
+
+	$query = 'SELECT * FROM users WHERE user_name = :uname';
+	$statement = $db->prepare($query);
+    $statement->bindValue(':uname', $username); 
+    $statement->execute();
+    $user = $statement->fetch(PDO::FETCH_ASSOC);
+
+    if (!empty($user) && password_verify($password, $user['user_password'])) {
+        // Credentials match, set session variables
+        $_SESSION['user_id'] = $user['user_id'];
+        $_SESSION['user_role'] = $user['user_role'];
+
+		$_SESSION['login_success'] = true;
+		
+        // Redirect to home page or any other page
+        header('Location: index.php');
+        exit();
+    } else {
+		$errorFlag = true;
+        // Credentials don't match, display error message
+        $errorMessage = 'Invalid username or password';
+    }
+    
+}
 
 
 
@@ -111,5 +142,9 @@
 	</form>
 	<p class="text-center margin-top-20">Don't have an account? <a href="signup.php">Sign up</a> here!</p>
 	<p class="text-center margin-top-20">Already have an account? <a href="login.php">Log in</a> here!</p>
+
+	<?php if($errorFlag): ?>
+    	<p><?= $errorMessage ?></p>
+    <?php endif ?>
 </body>
 </html>
