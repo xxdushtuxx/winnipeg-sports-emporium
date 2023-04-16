@@ -1,10 +1,35 @@
 <?php
-
+//require('authenticateAdmin.php');
 require('connect.php');
 require __DIR__ . DIRECTORY_SEPARATOR . 'php-image-resize-master' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'ImageResize.php';
 require __DIR__ . DIRECTORY_SEPARATOR . 'php-image-resize-master' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'ImageResizeException.php';
 use \Gumlet\ImageResize;
 
+
+// file_upload_path() - Safely build a path String that uses slashes appropriate for our OS.
+// Default upload path is an 'uploads' sub-folder in the current folder.
+function file_upload_path($original_filename, $upload_subfolder_name = 'uploads') {
+    $current_folder = dirname(__FILE__);
+    
+    // Build an array of paths segment names to be joins using OS specific slashes.
+    $path_segments = [$current_folder, $upload_subfolder_name, basename($original_filename)];
+    
+    // The DIRECTORY_SEPARATOR constant is OS specific.
+    return join(DIRECTORY_SEPARATOR, $path_segments);
+ }
+
+ function file_is_an_image($temporary_path, $new_path) {
+    $allowed_mime_types      = ['image/gif', 'image/jpeg', 'image/png'];
+    $allowed_file_extensions = ['gif', 'jpg', 'jpeg', 'png'];
+    
+    $actual_file_extension   = pathinfo($new_path, PATHINFO_EXTENSION);
+    $actual_mime_type        = getimagesize($temporary_path)['mime'];
+    
+    $file_extension_is_valid = in_array($actual_file_extension, $allowed_file_extensions);
+    $mime_type_is_valid      = in_array($actual_mime_type, $allowed_mime_types);
+    
+    return $file_extension_is_valid && $mime_type_is_valid;
+}
 
 
 if(!isset($_GET['id'])){
@@ -26,6 +51,23 @@ $query = "SELECT * FROM categories";
 $statement = $db->prepare($query);
 $statement->execute();
 $categories = $statement->fetchAll();
+    /*
+// Get the product ID from the URL parameter
+$id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+if (!$id) {
+    // Handle invalid ID
+}
+
+
+if (!$row) {
+        $errorFlag = true;
+        $errorMessage = "Product not found.";
+    }
+} else {
+    $errorFlag = true;
+    $errorMessage = "Product ID is missing.";
+}
+    */
 }
 
 $errorFlag = false;
@@ -258,7 +300,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <input type="radio" name="availability" value="1" <?php echo $row['product_availability'] == 1 ? 'checked' : ''; ?>>Available
         <input type="radio" name="availability" value="0" <?php echo $row['product_availability'] == 0 ? 'checked' : ''; ?>>Not Available
 
+        <br>
+        <?php if($row['image_id'] == 1): ?>
+        <label for="image">Image:</label>
+        <input type="file" name="image" id="image" value="">
+        <br>
         
+        <input type="checkbox" name="upload-image" value=""> <!-- checkbox needs to be selected to add image -->
+        <label for="upload-image"><i>checkbox needs to be selected to add image</i></label>
+        <?php else: ?>
+        <input type="checkbox" name="delete-image" value=""> <!-- checkbox needs to be selected to add image -->
+        <label for="delete-image"><i>checkbox needs to be selected to delete image</i></label>
+        <input type="hidden" name="imageID" id="imageID" value="<?= $row['image_id'] ?>">
+        <?php endif ?>
         <p>
             <input type="submit" name="update-btn" value="Update">
             <input type="submit" name="delete-btn" value="Delete" onclick="return confirm('Are you sure you wish to delete this product?')">
