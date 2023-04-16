@@ -3,7 +3,7 @@ require('connect.php');
 
 session_start();
 
-
+$captchaFailure = false;
 $message = "";
 
 if(isset($_GET['id'])){
@@ -14,7 +14,13 @@ if(isset($_GET['id'])){
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
 
-    
+    if ( $_SESSION['captcha'] != $_POST['captcha']) {
+        $_SESSION['commentName'] = $_POST['name'];
+        $_SESSION['commentText'] = $_POST['comment'];
+        $message = "Incorrect CAPTCHA. Please try again.";
+        $captchaFailure = true;
+        
+    } else {
     if(isset($_SESSION['user_id'])){
 
         $productID = $_SESSION['commentProductID']; 
@@ -70,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
 }
-    
+    }
 }
 ?>
 
@@ -92,7 +98,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <label for="comment">Comment:</label>
     <input type="text" name="comment" value="<?= $_SESSION['commentText'] ?>" required>
     
-    
+    <br>
+        <label for="captcha">Please enter the CAPTCHA:</label>
+        <br>
+        <img src="captcha.php" alt="CAPTCHA">
+        <br>
+        <input type="text" name="captcha" required>
+        <br>
+    <input type="submit" value="Submit">
 </form>
 
 <?php if($captchaFailure): ?>
