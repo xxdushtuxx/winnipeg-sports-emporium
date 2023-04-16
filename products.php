@@ -69,7 +69,15 @@ if (isset($_GET['search'])) {
     $statement2->execute();
     $comments = $statement2->fetchAll();
 
-    
+    $image_available = false;
+    if($row['image_id'] > 1){
+        $image_available = true;
+        $queryImage = "SELECT * FROM images WHERE image_id = :imageID";
+        $statement3 = $db->prepare($queryImage);
+        $statement3->bindValue(':imageID', $row['image_id']);
+        $statement3->execute();
+        $image = $statement3->fetch();
+    }
     
 } else{
     $query = "SELECT * FROM products ORDER BY product_price ASC";
@@ -156,7 +164,9 @@ if (isset($_GET['search'])) {
             </p>
             
 
-            
+            <?php if($image_available): ?>
+                <img src="./uploads/<?=$image['image_filename']?>" alt="<?= $image['image_description'] ?>">
+            <?php endif ?>
             <p>Description: <?= $row['product_description'] ?></p>
             <p>Price: $<?= $row['product_price'] ?></p>
             <?php if($row['product_availability']): ?>
