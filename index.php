@@ -56,18 +56,7 @@ if (isset($_GET['logout'])) {
         </ul>
     </nav><br>
 
-    <div>
-        <h2>categories</h2>
-        <ul>
-            <li><a href="productscategory.php?id=1">Boots</a></li>
-            <li><a href="productscategory.php?id=2">Turfs</a></li>
-            <li><a href="productscategory.php?id=5">Shorts</a></li>
-            <li><a href="productscategory.php?id=6">sports uniform</a></li>
-        </ul>
-    </div>
-
-    <!--<a href="admin-dashboard.php" >Admin</a>-->
-    <a href="admin-dashboard.php" style="<?php echo ($_SESSION['user_role'] == 'admin') ? 'visibility: visible;' : 'visibility: hidden;'; ?>">Admin Page</a>
+    <a href="adminDashboard.php" style="<?php echo ($_SESSION['user_role'] == 'admin') ? 'visibility: visible;' : 'visibility: hidden;'; ?>">Admin Page</a>
 
 
     <?php while($row = $statement->fetch()): ?>
